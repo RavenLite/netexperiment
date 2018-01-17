@@ -1,8 +1,9 @@
 
-
 //1521
 //ftp.dlptest.com
 //mkdil
+
+/*实现了全部功能*/
 
 import java.io.*;
 import java.net.*;
