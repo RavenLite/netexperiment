@@ -1,7 +1,7 @@
 /**
  * 
  */
-package FTP;
+
 
 import java.io.*;
 import java.net.*;
@@ -60,7 +60,7 @@ public class FtpServer {
 			msg = reader.readLine();
 			System.out.println(msg);// 用户返回信息
 			command = new StringTokenizer(msg, " ");// 分割出指令
-			System.out.println(command);// 用户返回指令
+			System.out.println(command.toString());// 用户返回指令
 
 			// 针对不同命令编写不同代码
 			switch (command.nextToken()) {
@@ -91,6 +91,14 @@ public class FtpServer {
 
 			case ("SIZE"):
 				SIZEtask();
+				break;
+
+			case ("MKD"):
+				MKDtask();
+				break;
+
+			case ("CWD"):
+				CWDtask();
 				break;
 			}
 		}
@@ -151,7 +159,7 @@ public class FtpServer {
 			File[] lists = dir.listFiles();
 			for (int i = 0; i < lists.length; i++) {
 				fileInfo.append("File Name: " + lists[i].getName() + "\nFile Size: " + lists[i].length() + "B"
-						+ "\nFile Size; "
+						+ "\nFile Time; "
 						+ new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(lists[i].lastModified())) + "\n");
 			}
 		}
@@ -224,20 +232,42 @@ public class FtpServer {
 		File[] files = dir.listFiles();
 		int status = 0;
 		for (int i = 0; i < files.length; i++) {
-			System.out.println("1111:" + name);
-			System.out.println("2222" + files[i].getName());
 			if (files[i].getName().equals(name)) {
 				writer.println(files[i].length());
 				writer.flush();
-				status=1;
+				status = 1;
 				break;
 			}
 		}
-		
+
 		if (status == 0) {
 			writer.println("808 No file.");
 			writer.flush();
 		}
+	}
+
+	private static void MKDtask() {
+		System.out.println(msg);
+		String folder = msg.substring(4, msg.length());
+		System.out.println(folder);
+		address = dir + "\\" + folder;
+		System.out.println(address);
+		File l = new File(address);
+		l.mkdir();
+		
+		writer.println("808 File Folder "+folder+" has been created.");
+		writer.flush();
+	}
+
+	private static void CWDtask() {
+		System.out.println(msg);
+		String folder = msg.substring(4, msg.length());
+		System.out.println(folder);
+		address = dir + "\\" + folder;
+		dir = new File(address);
+		
+		writer.println("808 File Folder "+folder+" has been opened.");
+		writer.flush();
 	}
 
 	// Java File类不提供获取文件创建时间的方法，我们调用Windows系统的API，通过调CMD命令实现

@@ -1,7 +1,9 @@
-package FTP;
+
 
 //1521
 //ftp.dlptest.com
+//mkdil
+
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
@@ -19,14 +21,15 @@ public class FtpClient {
 	static Scanner input = null;
 	static String cmd = null;
 	static String name = null;
-	static String address =null;
+	static String address = null;
 	static StringTokenizer temps = null;
-	static String dir = null;//默认地址
+	static File dir = null;// 默认地址
+	static String loca = null;
 	static int i = 0;
 
 	public static void main(String[] args) throws IOException {
 
-		dir="E:\\";
+		dir = new File("E:\\");
 		/* 客户端和FTP服务器建立Socket连接 */
 		s = new Socket(InetAddress.getLocalHost(), 9513);
 		reader = new BufferedReader(new InputStreamReader(s.getInputStream()));
@@ -40,64 +43,45 @@ public class FtpClient {
 				break;
 			}
 		}
-		cmd="USER dlpuser@dlptest.com";
+		cmd = "USER dlpuser@dlptest.com";
 		user();
-		cmd="PASS hZ3Xr8alJPl8TtE";
+		cmd = "PASS hZ3Xr8alJPl8TtE";
 		pass();
-		cmd="LIST";
+		cmd = "LIST";
 		list();
-		cmd="STOR E:/02TOEFL/xieyi2.txt";
+		cmd = "STOR xieyi2.txt";
 		stor();
-		cmd="RETR xieyi2.txt";
+		cmd = "RETR haoyun.txt";
 		retr();
-		/*cmd="RETR xieyi2.txt";
+		/*cmd = "STOR test";
+		stor();*/
+		/*cmd = "RETR ";
 		retr();*/
+		/*
+		 * cmd="RETR xieyi2.txt"; retr();
+		 */
 		// 进入循环，用户进行操作
-		/*while (true) {
-			input = new Scanner(System.in);
-			cmd = input.nextLine();
-
-			switch (cmd.substring(0, 4)) {
-			case ("USER"):
-				user();
-				break;
-
-			case ("PASS"):
-				pass();
-				break;
-			case ("PASV"):
-				getSocket();
-				break;
-				
-			case ("LIST"):
-				list();
-				break;
-
-			case ("STOR"):
-				stor();
-				break;
-
-			case ("RETR"):
-				retr();
-				break;
-
-			case ("SIZE"):
-				size();
-				break;
-
-			case ("CWD "):
-				cwd();
-				break;
-			
-			case ("MKD "):
-				mkd();
-				break;
-
-			case ("QUIT"):
-				quit();
-				break;
-			}
-		}*/
+		/*
+		 * while (true) { input = new Scanner(System.in); cmd = input.nextLine();
+		 * 
+		 * switch (cmd.substring(0, 4)) { case ("USER"): user(); break;
+		 * 
+		 * case ("PASS"): pass(); break; case ("PASV"): getSocket(); break;
+		 * 
+		 * case ("LIST"): list(); break;
+		 * 
+		 * case ("STOR"): stor(); break;
+		 * 
+		 * case ("RETR"): retr(); break;
+		 * 
+		 * case ("SIZE"): size(); break;
+		 * 
+		 * case ("CWD "): cwd(); break;
+		 * 
+		 * case ("MKD "): mkd(); break;
+		 * 
+		 * case ("QUIT"): quit(); break; } }
+		 */
 
 	}
 
@@ -142,67 +126,69 @@ public class FtpClient {
 	private static void stor() throws IOException {
 		getSocket();// 获取数据端口
 		/* 上传文件 */
-		address = cmd.substring(5, cmd.length());
-		name = null;
-		temps = new StringTokenizer(cmd,"/");
-		while(temps.hasMoreTokens()) {
-			name = temps.nextToken();
-		}
-		cmd=cmd.substring(0, 5)+name;
+		address = dir + cmd.substring(5, cmd.length());
+		name = cmd.substring(5, cmd.length());
 		File tempFile = new File(address);
-		/*上传文件夹*/
-		if(tempFile.isDirectory()){
-			cmd="MKD "+name;
-			mkd();//新建文件夹
-			cmd="CWD "+name;
-			cwd();//打开文件夹
+		/* 上传文件夹 */
+		if (tempFile.isDirectory()) {
+			cmd = "MKD " + name;
+			mkd();// 新建文件夹
+			cmd = "CWD " + name;
+			cwd();// 打开文件夹
 			File[] files = tempFile.listFiles();
 			if (files != null) {
-	            for (int i = 0; i < files.length; i++) {
-	            	if(files[i].isDirectory()) {
-	            		break;
-	            	}System.out.println(i);
-	            	address+=files[i].getName();
-	            	address="E:\\02TOEFL\\09TPO\\OG阅读文本答案翻译.docx";
-	                upLoad(files[i]);
-	            }
-	        }
+				System.out.println(files.length);
+				for (int i = 0; i < files.length; i++) {
+					if (files[i].isDirectory()) {
+						continue;
+					}
+					System.out.println(i);
+					System.out.println(files[i]);
+					name = files[i].getName();
+					address=files[i].toString();
+					System.out.println("**\n"+name+"\n"+address+"\n");
+					upLoad(files[i]);
+				}
+			}
 		}
-		/*上传文件*/
+		/* 上传文件 */
 		else {
-			File file = new File(address);
-			upLoad(file);
+			upLoad(tempFile);
 		}
 	}
 
 	private static void retr() throws IOException {
 		getSocket();// 获取数据端口
 		/* 下载文件 */
-		writer.println(cmd);
-		writer.flush();
-		
+
 		name = cmd.substring(5, cmd.length());
 		System.out.println(name);
 		address = dir + "\\" + name;
-		i = 0;
-		while ((response = reader.readLine()) != null) {
-			System.out.println(response);
-			i++;
-			if (i == 4) {
-				break;
+		File tempFile = new File(address);
+		if (tempFile.isDirectory()) {
+			cmd = "MKD " + name;
+			mkd();// 新建文件夹
+			cmd = "CWD " + name;
+			cwd();// 打开文件夹
+			File[] files = tempFile.listFiles();
+			if (files != null) {
+				System.out.println(files.length);
+				for (int i = 0; i < files.length; i++) {
+					if (files[i].isDirectory()) {
+						continue;
+					}
+					System.out.println(i);
+					System.out.println(files[i]);
+					name = files[i].getName();
+					address=files[i].toString();
+					System.out.println("**\n"+name+"\n"+address+"\n");
+					upLoad(files[i]);
+				}
 			}
+		} else {
+			downLoad(tempFile);
 		}
 
-		byte[] bufferbyte = new byte[1024];
-		int len = 0;
-		FileOutputStream in = new FileOutputStream(address);
-		DataInputStream dis = new DataInputStream(ds.getInputStream());
-		while ((len = dis.read(bufferbyte)) != -1) {
-			in.write(bufferbyte, 0, len);
-		}
-		in.close();
-		ds.close();
-		System.out.println("@@@@@");
 	}
 
 	private static void size() throws IOException {
@@ -224,23 +210,23 @@ public class FtpClient {
 		/* CWD:改变工作目录。 */
 		writer.println(cmd);
 		writer.flush();
-		i=0;
+		i = 0;
 		while ((response = reader.readLine()) != null) {
 			System.out.println(response);
 			i++;
-			if(i==1)
+			if (i == 1)
 				break;
 		}
 	}
-	
+
 	private static void mkd() throws IOException {
 		writer.println(cmd);
 		writer.flush();
-		i=0;
+		i = 0;
 		while ((response = reader.readLine()) != null) {
 			System.out.println(response);
 			i++;
-			if(i==1)
+			if (i == 1)
 				break;
 		}
 	}
@@ -261,14 +247,17 @@ public class FtpClient {
 	}
 
 	private static void upLoad(File file) throws IOException {
-		writer.println("SIZE "+file.getName());
+		writer.println("SIZE " + name);
 		writer.flush();
-		response = reader.readLine();//服务器文件大小
+		response = reader.readLine();// 服务器文件大小
 		long local = file.length();
-		
-		System.out.println(response);
-		if(response.substring(0, 3).equals("808") || local<=Integer.parseInt(response)) {
+		System.out.println(name);
+		System.out.println(address);
+		System.out.println("**");
+		System.out.println("@@"+response);
+		if (response.substring(0, 3).equals("808")) {
 			System.out.println("没有文件，正常上传！");
+			cmd = "STOR "+name;
 			writer.println(cmd);
 			writer.flush();
 			RandomAccessFile outFiles = null;
@@ -296,12 +285,13 @@ public class FtpClient {
 					break;
 				}
 			}
-		}
-		else {
+		} else if (local <= Integer.parseInt(response)) {
+			System.out.println("服务器的文件大");
+		} else {
 			System.out.println("断点续传~");
 			int leng = Integer.parseInt(response);
 			System.out.println(leng);
-			
+
 			writer.println(cmd);
 			writer.flush();
 			RandomAccessFile outFiles = null;
@@ -330,13 +320,90 @@ public class FtpClient {
 					break;
 				}
 			}
-			
 		}
-		
-		
 	}
-	
-	
+
+	private static void downLoad(File file) throws IOException {
+		writer.println("SIZE " + name);
+		writer.flush();
+		response = reader.readLine();// 服务器文件大小
+		long local = file.length();
+
+		long response2 = getSize(file.getName());
+
+		if (response2 == 808) {
+			System.out.println("没有文件，正常下载！");
+
+			writer.println(cmd);
+			writer.flush();
+
+			name = cmd.substring(5, cmd.length());
+			System.out.println(name);
+			i = 0;
+			while ((response = reader.readLine()) != null) {
+				System.out.println(response);
+				i++;
+				if (i == 4) {
+					break;
+				}
+			}
+
+			byte[] bufferbyte = new byte[1024];
+			int len = 0;
+			FileOutputStream in = new FileOutputStream(address);
+			DataInputStream dis = new DataInputStream(ds.getInputStream());
+			while ((len = dis.read(bufferbyte)) != -1) {
+				in.write(bufferbyte, 0, len);
+			}
+			in.close();
+			ds.close();
+		} else if (local <= response2) {
+			System.out.println("服务器的文件大，断点下载");
+			writer.println(cmd);
+			writer.flush();
+
+			name = cmd.substring(5, cmd.length());
+			System.out.println(name);
+			i = 0;
+			while ((response = reader.readLine()) != null) {
+				System.out.println(response);
+				i++;
+				if (i == 4) {
+					break;
+				}
+			}
+
+			byte[] bufferbyte = new byte[1024];
+			int len = 0;
+			FileOutputStream in = new FileOutputStream(address, true);
+			DataInputStream dis = new DataInputStream(ds.getInputStream());
+			dis.skip(local);
+			while ((len = dis.read(bufferbyte)) != -1) {
+				in.write(bufferbyte, 0, len);
+			}
+			in.close();
+			ds.close();
+		} else {
+			System.out.println("服务器的文件小，不用下载。");
+		}
+	}
+
+	private static long getSize(String name) {
+		File[] files = dir.listFiles();
+		int status = 0;
+		for (int i = 0; i < files.length; i++) {
+			if (files[i].getName().equals(name)) {
+				status = 1;
+				return files[i].length();
+			}
+		}
+
+		if (status == 0) {
+			return 808;
+		}
+		return 0;
+	}
+
 	private static void getSocket() throws IOException {
 		/* 使用PASV命令得到服务器监听的端口号，建立数据连接。 */
 		writer.println("PASV");
