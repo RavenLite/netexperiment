@@ -3,6 +3,14 @@ package client;
 import java.net.*;
 import java.io.*;
 
+/**
+ * HTTPClient: HTTP客户端
+ * 基于HTTP/1.1协议，可以实现对任意网站的GET、POST请求
+ * 提供简单的交互功能。
+ * 支持HTML语义检查，将HTML内所有包含的文件一并下载。
+ * @author Raven
+ *
+ */
 public class HTTPClient {
 	static Socket s = null;// 与网站进行通讯的socket
 	static String response = null;// 网站返回的内容
@@ -10,7 +18,7 @@ public class HTTPClient {
 	static PrintStream writer = null;// 输出流
 	static DataInputStream reader = null;// 输入流
 	static int i = 0;//计数器
-	static String savelocation = "E:";//本地文件仓库
+	static String savelocation = "./database";//本地文件仓库
 
 	public static void main(String[] args) throws IOException {
 		/* 连接服务器 */
@@ -38,30 +46,17 @@ public class HTTPClient {
 		System.out.println(third);
 		String forth = reader.readLine();// blank line
 		System.out.println(forth);
-		i = 0;
+		
 		while((response = reader.readLine())!=null) {
-			i++;
 			System.out.println(response);
-			if(i == 7)
+			if(response.equals(""))
 				break;
 		}
 		
-		//读取响应数据，保存文件
+		/* 读取响应数据，保存文件 */
 		//success
 		if (first.endsWith("OK")) {
-			byte[] b = new byte[1024];
-			System.out.println("传数据中");
-			FileOutputStream out = new FileOutputStream(savelocation + "/" + filename, true);// 输出流，向文件写入数据
-			//int len = in.read(b);
-			int len = reader.read(b);
-			/* 写入文件 */
-			while (len != -1) {
-				out.write(b, 0, len);
-				len = reader.read(b);
-			}
-			System.out.println("数据传输结束");
-			reader.close();
-			out.close();
+			downLoad();
 		}
 
 		else {
@@ -72,5 +67,27 @@ public class HTTPClient {
 			}
 			System.out.print(result);//输出错误信息
 		}
+	}
+	
+	/* 下载制定文件到工作目录*/
+	private static void downLoad() throws IOException {
+		byte[] b = new byte[1024];
+		System.out.println("传数据中");
+		FileOutputStream out = new FileOutputStream(savelocation + "/" + filename, true);// 输出流，向文件写入数据
+		//int len = in.read(b);
+		int len = reader.read(b);
+		/* 写入文件 */
+		while (len != -1) {
+			out.write(b, 0, len);
+			len = reader.read(b);
+		}
+		System.out.println("数据传输结束");
+		reader.close();
+		out.close();
+	}
+	
+	/* src判断 */
+	private static void parse() {
+		
 	}
 }
