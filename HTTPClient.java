@@ -28,6 +28,7 @@ public class HTTPClient {
 	static int i = 0;// 计数器
 	static String savelocation = "./clientdb";// 本地文件仓库
 	static String address = null;// 目录
+	static String rootfile = null; // 根目录
 	static Scanner in = null;
 	static String url = null;
 	static int status = 0;
@@ -38,14 +39,13 @@ public class HTTPClient {
 		 * System.out.println("请输入想访问的网站名："); in = new Scanner(System.in); url =
 		 * in.toString(); System.out.println(url);
 		 */
-		
-		
+
 		get("index.html");
 		s.close();
 	}
 
 	private static void get(String root) throws IOException {
-		//s = new Socket(InetAddress.getLocalHost(), 8080);
+		// s = new Socket(InetAddress.getByName("127.0.0.1"), 8080);
 		s = new Socket(InetAddress.getByName("www.lib.neu.edu.cn"), 80);
 		System.out.println("服务器已连接");
 		/* 发送请求头 */
@@ -90,24 +90,23 @@ public class HTTPClient {
 			System.out.print(result);// 输出错误信息
 		}
 	}
-	
+
 	/* 下载指定文件到工作目录 */
 	private static void downLoad() throws IOException {
-		address = savelocation + "/" + filename.substring(0, filename.lastIndexOf("."));//address:文件存入地址
-		//System.out.println(address);
+		address = savelocation + "/" + filename.substring(0, filename.lastIndexOf("."));// address:文件存入地址
+		// System.out.println(address);
 
 		/* 判断文件类型，如果是html，则新建文件夹 */
 		if (filename.substring(filename.length() - 4, filename.length()).equals("html")) {
 			File l = new File(address);
 			l.mkdirs();
 			savelocation = address;
+			rootfile = filename.substring(0, filename.length() - 5);// 指定根文件夹
 		}
-		if(status == 1) {
-			
-		}
+
 		byte[] b = new byte[1024];
 		System.out.println("传数据中");
-		try{
+		try {
 			FileOutputStream out = new FileOutputStream(savelocation + "/" + filename, true);// 输出流，向文件写入数据
 			int len = reader.read(b);
 			/* 写入文件 */
@@ -117,31 +116,29 @@ public class HTTPClient {
 			}
 			reader.close();
 			writer.close();
-			
+
 			/* 判断文件类型，如果是html，则进行判断操作 */
 			if (filename.substring(filename.length() - 4, filename.length()).equals("html")) {
 				System.out.println("开始解析");
-				/*解析文件入口*/
+				/* 解析文件入口 */
 				parse();
 			}
-			
+
 			System.out.println("数据传输结束，文件已存入本地");
-			savelocation = "./database";
+			savelocation = "./clientdb/" + rootfile;
 			out.close();
 			s.close();
-		}catch(FileNotFoundException e) {
+		} catch (FileNotFoundException e) {
 			String temp = null;
 			File l = new File(savelocation + "/" + addr);
-			//System.out.println("savelocation:"+savelocation+"  filename"+filename);
-			//System.out.println("savelocation:"+savelocation+"  addr"+addr);
-			System.out.println(addr);
-			File m=new File(l.getPath());
+
+			File m = new File(l.getPath());
 			m.mkdirs();
 			System.out.println(filename);
 			System.out.println(savelocation);
 			get(filename);
 			filename = fileName;
-			savelocation = savelocation+addr;
+			savelocation = savelocation + addr;
 			downLoad();
 		}
 	}
@@ -150,7 +147,7 @@ public class HTTPClient {
 	private static void parse() throws IOException {
 		FileInputStream in = new FileInputStream(savelocation + "/" + filename);
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		String html = null;//获取到的html内容
+		String html = null;// 获取到的html内容
 		byte[] b = new byte[1024];
 		System.out.println("读取html中");
 		int length = -1;
@@ -161,23 +158,28 @@ public class HTTPClient {
 		bos.close();
 		in.close();
 		html = bos.toString();
-		//System.out.println(html);
+		// System.out.println(html);
 
 		List pics = getImgSrc(html);
 		System.out.println(pics.toString());
-		String add = pics.toString();//所有src文件目录
-		add=add.replaceAll("\\[", "");
-		add=add.replaceAll("\\]", "");
+		String add = pics.toString();// 所有src文件目录
+		add = add.replaceAll("\\[", "");
+		add = add.replaceAll("\\]", "");
 		System.out.println(add);
 		StringTokenizer temp = new StringTokenizer(add, " ");// 分割，以便读取全部src
-		String[] lists = new String[90];
+		String[] lists = new String[100];
 		String uuu = temp.toString();
+
 		i = 0;
 		while (true) {
 			try {
+				if (uuu.substring(0, 4).equals("http")) {
+					uuu = temp.nextToken();
+					continue;// 不下载http文件
+				}
 				lists[i] = uuu;
 				uuu = temp.nextToken();
-				System.out.println(uuu);
+				System.out.println("当前要获取的文件名:" + uuu);
 				i++;
 				if (uuu.equals(null))
 					break;
@@ -185,56 +187,33 @@ public class HTTPClient {
 				break;
 			}
 		}
-		//System.out.println("&"+i);
+
+		int num = i;// num: 要下载的文件个数
 		int j = 0;
-		for (j = 0; j < i; j++) {
-			filename = lists[i].replaceAll(",", "");
+		for (j = 1; j <= num; j++) {
+			filename = lists[j].replaceAll(",", "");
+			System.out.println("处理后文件名: " + lists[j].toString());
 			status = 1;
-			File tempFile =new File( filename .trim());  
-		    fileName = tempFile.getName(); //filename:网页文件名（不含文件夹）
-		    addr = filename.replaceAll(fileName, "");
-		    System.out.println(filename.substring(1, filename.length()));
-		    //.out.println("*addr: "+addr);
-		    //System.out.println("fileName"+fileName);
-			get(filename.substring(1, filename.length()));//filename:网页文件名（含文件夹）
+			File tempFile = new File(filename.trim());
+			fileName = tempFile.getName(); // filename:网页文件名（不含文件夹）
+			addr = filename.replaceAll(fileName, "");
+			System.out.println(filename.substring(1, filename.length()));
+			get(filename.substring(1, filename.length()));// filename:网页文件名（含文件夹）
 		}
 	}
 
-	private static List<String> getImgSrc(String s){    
-        
-	       String regex;    
-	         
-	       List<String> list = new ArrayList<String>();    
-	       regex = "src=\"(.*?)\"";  
-	       Pattern pa = Pattern.compile(regex, Pattern.DOTALL);    
-	       Matcher ma = pa.matcher(s);    
-	
-	       while (ma.find())    
-	       {  
-	        list.add(ma.group());    
-	       }    
-	       return list;    
-	    }
+	private static List<String> getImgSrc(String s) {
 
-	/*private static List<String> getImgSrc(String htmlStr) {
-		String img = "";
-		Pattern p_image;
-		Matcher m_image;
-		List<String> pics = new ArrayList<String>();
-		// String regEx_img = "<img.*src=(.*?)[^>]*?>"; //图片链接地址
-		String regEx_img = "<img.*src\\s*=\\s*(.*?)[^>]*?>";
-		p_image = Pattern.compile(regEx_img, Pattern.CASE_INSENSITIVE);
-		m_image = p_image.matcher(htmlStr);
+		String regex;
 
-		while (m_image.find()) {
-			img = img + "," + m_image.group();
-			// Matcher m =
-			// Pattern.compile("src=\"?(.*?)(\"|>|\\s+)").matcher(img); //匹配src
-			Matcher m = Pattern.compile("src\\s*=\\s*\"?(.*?)(\"|>|\\s+)").matcher(img);
-			while (m.find()) {
-				pics.add(m.group(1));
-			}
+		List<String> list = new ArrayList<String>();
+		regex = "src=\"(.*?)\"";
+		Pattern pa = Pattern.compile(regex, Pattern.DOTALL);
+		Matcher ma = pa.matcher(s);
+
+		while (ma.find()) {
+			list.add(ma.group().substring(5, ma.group().length() - 1));
 		}
-		return pics;
-	}*/
+		return list;
+	}
 }
