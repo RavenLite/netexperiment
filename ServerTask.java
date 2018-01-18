@@ -8,6 +8,8 @@ import java.io.*;
 
 public class ServerTask extends Thread {
 	static Socket s = null;
+	static BufferedReader reader = null;
+	static String savelocation = "./serverdb";
 
 	public ServerTask(Socket s) {
 		ServerTask.s = s;
@@ -15,11 +17,12 @@ public class ServerTask extends Thread {
 
 	public void run() {
 		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(s.getInputStream()));
+			reader = new BufferedReader(new InputStreamReader(s.getInputStream()));
 			String firstLineOfRequest;
 			firstLineOfRequest = reader.readLine();
 			System.out.println(firstLineOfRequest);
 			String uri = firstLineOfRequest.split(" ")[1];
+			System.out.println("uri: "+uri);
 			if (uri == null) {
 				this.stop();
 			}
@@ -34,7 +37,8 @@ public class ServerTask extends Thread {
 			} else {
 				writer.println("Content-Type:application/octet-stream");
 			}
-			File fi = new File("/Users/lacelot/Documents" + uri);
+			
+			File fi = new File(savelocation + uri);
 			if (!fi.exists()) {
 				writer.println("HTTP/1.1 404 Not Found");
 				writer.println("Content-Type:text/plain");
@@ -44,7 +48,8 @@ public class ServerTask extends Thread {
 				writer.print("it doesn't exit");
 				writer.flush();
 			}
-			FileInputStream in = new FileInputStream("/Users/lacelot/Documents" + uri);
+			
+			FileInputStream in = new FileInputStream(savelocation + uri);
 
 			writer.println("Content-Length:" + in.available());
 			writer.println();
