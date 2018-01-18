@@ -11,31 +11,31 @@ import java.util.regex.Pattern;
 import java.io.*;
 
 /**
- * HTTPClient: HTTP¿Í»§¶Ë »ùÓÚHTTP/1.1Ğ­Òé£¬¿ÉÒÔÊµÏÖ¶ÔÈÎÒâÍøÕ¾µÄGET¡¢POSTÇëÇó Ìá¹©¼òµ¥µÄ½»»¥¹¦ÄÜ¡£
- * Ö§³ÖHTMLÓïÒå¼ì²é£¬½«HTMLÄÚËùÓĞ°üº¬µÄÎÄ¼şÒ»²¢ÏÂÔØ¡£
+ * HTTPClient: HTTPå®¢æˆ·ç«¯ åŸºäºHTTP/1.1åè®®ï¼Œå¯ä»¥å®ç°å¯¹ä»»æ„ç½‘ç«™çš„GETã€POSTè¯·æ±‚ æä¾›ç®€å•çš„äº¤äº’åŠŸèƒ½ã€‚
+ * æ”¯æŒHTMLè¯­ä¹‰æ£€æŸ¥ï¼Œå°†HTMLå†…æ‰€æœ‰åŒ…å«çš„æ–‡ä»¶ä¸€å¹¶ä¸‹è½½ã€‚
  * 
  * @author Raven
  *
  */
 public class HTTPClient {
-	static Socket s = null;// ÓëÍøÕ¾½øĞĞÍ¨Ñ¶µÄsocket
-	static String response = null;// ÍøÕ¾·µ»ØµÄÄÚÈİ
-	static String filename = null;// Ïë·ÃÎÊµÄÎÄ¼şÃû
-	static String fileName = null;// ´¿ÎÄ¼şÃû
-	static String addr = null;// ÎÄ¼şÂ·¾¶
-	static PrintStream writer = null;// Êä³öÁ÷
-	static DataInputStream reader = null;// ÊäÈëÁ÷
-	static int i = 0;// ¼ÆÊıÆ÷
-	static String savelocation = "./clientdb";// ±¾µØÎÄ¼ş²Ö¿â
-	static String address = null;// Ä¿Â¼
+	static Socket s = null;// ä¸ç½‘ç«™è¿›è¡Œé€šè®¯çš„socket
+	static String response = null;// ç½‘ç«™è¿”å›çš„å†…å®¹
+	static String filename = null;// æƒ³è®¿é—®çš„æ–‡ä»¶å
+	static String fileName = null;// çº¯æ–‡ä»¶å
+	static String addr = null;// æ–‡ä»¶è·¯å¾„
+	static PrintStream writer = null;// è¾“å‡ºæµ
+	static DataInputStream reader = null;// è¾“å…¥æµ
+	static int i = 0;// è®¡æ•°å™¨
+	static String savelocation = "./clientdb";// æœ¬åœ°æ–‡ä»¶ä»“åº“
+	static String address = null;// ç›®å½•
 	static Scanner in = null;
 	static String url = null;
 	static int status = 0;
 
 	public static void main(String[] args) throws IOException {
-		/* Á¬½Ó·şÎñÆ÷ */
+		/* è¿æ¥æœåŠ¡å™¨ */
 		/*
-		 * System.out.println("ÇëÊäÈëÏë·ÃÎÊµÄÍøÕ¾Ãû£º"); in = new Scanner(System.in); url =
+		 * System.out.println("è¯·è¾“å…¥æƒ³è®¿é—®çš„ç½‘ç«™åï¼š"); in = new Scanner(System.in); url =
 		 * in.toString(); System.out.println(url);
 		 */
 		
@@ -47,8 +47,8 @@ public class HTTPClient {
 	private static void get(String root) throws IOException {
 		//s = new Socket(InetAddress.getLocalHost(), 8080);
 		s = new Socket(InetAddress.getByName("www.lib.neu.edu.cn"), 80);
-		System.out.println("·şÎñÆ÷ÒÑÁ¬½Ó");
-		/* ·¢ËÍÇëÇóÍ· */
+		System.out.println("æœåŠ¡å™¨å·²è¿æ¥");
+		/* å‘é€è¯·æ±‚å¤´ */
 		filename = root;
 		writer = new PrintStream(s.getOutputStream());
 		writer.println("GET /" + filename + " HTTP/1.1");
@@ -57,7 +57,7 @@ public class HTTPClient {
 		writer.println();
 		writer.flush();
 
-		/* ½ÓÊÜÏìÓ¦Êı¾İ */
+		/* æ¥å—å“åº”æ•°æ® */
 		reader = new DataInputStream(s.getInputStream());
 
 		String first = reader.readLine();// "HTTP/1.1 200 OK"
@@ -75,7 +75,7 @@ public class HTTPClient {
 				break;
 		}
 
-		/* ¶ÁÈ¡ÏìÓ¦Êı¾İ£¬±£´æÎÄ¼ş */
+		/* è¯»å–å“åº”æ•°æ®ï¼Œä¿å­˜æ–‡ä»¶ */
 		// success
 		if (first.endsWith("OK")) {
 			downLoad();
@@ -87,16 +87,16 @@ public class HTTPClient {
 			while ((line = reader.readLine()) != null) {
 				result.append(line);
 			}
-			System.out.print(result);// Êä³ö´íÎóĞÅÏ¢
+			System.out.print(result);// è¾“å‡ºé”™è¯¯ä¿¡æ¯
 		}
 	}
 	
-	/* ÏÂÔØÖ¸¶¨ÎÄ¼şµ½¹¤×÷Ä¿Â¼ */
+	/* ä¸‹è½½æŒ‡å®šæ–‡ä»¶åˆ°å·¥ä½œç›®å½• */
 	private static void downLoad() throws IOException {
-		address = savelocation + "/" + filename.substring(0, filename.lastIndexOf("."));//address:ÎÄ¼ş´æÈëµØÖ·
+		address = savelocation + "/" + filename.substring(0, filename.lastIndexOf("."));//address:æ–‡ä»¶å­˜å…¥åœ°å€
 		//System.out.println(address);
 
-		/* ÅĞ¶ÏÎÄ¼şÀàĞÍ£¬Èç¹ûÊÇhtml£¬ÔòĞÂ½¨ÎÄ¼ş¼Ğ */
+		/* åˆ¤æ–­æ–‡ä»¶ç±»å‹ï¼Œå¦‚æœæ˜¯htmlï¼Œåˆ™æ–°å»ºæ–‡ä»¶å¤¹ */
 		if (filename.substring(filename.length() - 4, filename.length()).equals("html")) {
 			File l = new File(address);
 			l.mkdirs();
@@ -106,11 +106,11 @@ public class HTTPClient {
 			
 		}
 		byte[] b = new byte[1024];
-		System.out.println("´«Êı¾İÖĞ");
+		System.out.println("ä¼ æ•°æ®ä¸­");
 		try{
-			FileOutputStream out = new FileOutputStream(savelocation + "/" + filename, true);// Êä³öÁ÷£¬ÏòÎÄ¼şĞ´ÈëÊı¾İ
+			FileOutputStream out = new FileOutputStream(savelocation + "/" + filename, true);// è¾“å‡ºæµï¼Œå‘æ–‡ä»¶å†™å…¥æ•°æ®
 			int len = reader.read(b);
-			/* Ğ´ÈëÎÄ¼ş */
+			/* å†™å…¥æ–‡ä»¶ */
 			while (len != -1) {
 				out.write(b, 0, len);
 				len = reader.read(b);
@@ -118,14 +118,14 @@ public class HTTPClient {
 			reader.close();
 			writer.close();
 			
-			/* ÅĞ¶ÏÎÄ¼şÀàĞÍ£¬Èç¹ûÊÇhtml£¬Ôò½øĞĞÅĞ¶Ï²Ù×÷ */
+			/* åˆ¤æ–­æ–‡ä»¶ç±»å‹ï¼Œå¦‚æœæ˜¯htmlï¼Œåˆ™è¿›è¡Œåˆ¤æ–­æ“ä½œ */
 			if (filename.substring(filename.length() - 4, filename.length()).equals("html")) {
-				System.out.println("¿ªÊ¼½âÎö");
-				/*½âÎöÎÄ¼şÈë¿Ú*/
+				System.out.println("å¼€å§‹è§£æ");
+				/*è§£ææ–‡ä»¶å…¥å£*/
 				parse();
 			}
 			
-			System.out.println("Êı¾İ´«Êä½áÊø£¬ÎÄ¼şÒÑ´æÈë±¾µØ");
+			System.out.println("æ•°æ®ä¼ è¾“ç»“æŸï¼Œæ–‡ä»¶å·²å­˜å…¥æœ¬åœ°");
 			savelocation = "./database";
 			out.close();
 			s.close();
@@ -146,13 +146,13 @@ public class HTTPClient {
 		}
 	}
 
-	/* srcÅĞ¶Ï */
+	/* srcåˆ¤æ–­ */
 	private static void parse() throws IOException {
 		FileInputStream in = new FileInputStream(savelocation + "/" + filename);
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		String html = null;//»ñÈ¡µ½µÄhtmlÄÚÈİ
+		String html = null;//è·å–åˆ°çš„htmlå†…å®¹
 		byte[] b = new byte[1024];
-		System.out.println("¶ÁÈ¡htmlÖĞ");
+		System.out.println("è¯»å–htmlä¸­");
 		int length = -1;
 		while ((length = in.read(b)) != -1) {
 			bos.write(b, 0, length);
@@ -165,11 +165,11 @@ public class HTTPClient {
 
 		List pics = getImgSrc(html);
 		System.out.println(pics.toString());
-		String add = pics.toString();//ËùÓĞsrcÎÄ¼şÄ¿Â¼
+		String add = pics.toString();//æ‰€æœ‰srcæ–‡ä»¶ç›®å½•
 		add=add.replaceAll("\\[", "");
 		add=add.replaceAll("\\]", "");
 		System.out.println(add);
-		StringTokenizer temp = new StringTokenizer(add, " ");// ·Ö¸î£¬ÒÔ±ã¶ÁÈ¡È«²¿src
+		StringTokenizer temp = new StringTokenizer(add, " ");// åˆ†å‰²ï¼Œä»¥ä¾¿è¯»å–å…¨éƒ¨src
 		String[] lists = new String[90];
 		String uuu = temp.toString();
 		i = 0;
@@ -191,22 +191,37 @@ public class HTTPClient {
 			filename = lists[i].replaceAll(",", "");
 			status = 1;
 			File tempFile =new File( filename .trim());  
-		    fileName = tempFile.getName(); //filename:ÍøÒ³ÎÄ¼şÃû£¨²»º¬ÎÄ¼ş¼Ğ£©
+		    fileName = tempFile.getName(); //filename:ç½‘é¡µæ–‡ä»¶åï¼ˆä¸å«æ–‡ä»¶å¤¹ï¼‰
 		    addr = filename.replaceAll(fileName, "");
 		    System.out.println(filename.substring(1, filename.length()));
 		    //.out.println("*addr: "+addr);
 		    //System.out.println("fileName"+fileName);
-			get(filename.substring(1, filename.length()));//filename:ÍøÒ³ÎÄ¼şÃû£¨º¬ÎÄ¼ş¼Ğ£©
+			get(filename.substring(1, filename.length()));//filename:ç½‘é¡µæ–‡ä»¶åï¼ˆå«æ–‡ä»¶å¤¹ï¼‰
 		}
-
 	}
 
-	private static List<String> getImgSrc(String htmlStr) {
+	private static List<String> getImgSrc(String s){    
+        
+	       String regex;    
+	         
+	       List<String> list = new ArrayList<String>();    
+	       regex = "src=\"(.*?)\"";  
+	       Pattern pa = Pattern.compile(regex, Pattern.DOTALL);    
+	       Matcher ma = pa.matcher(s);    
+	
+	       while (ma.find())    
+	       {  
+	        list.add(ma.group());    
+	       }    
+	       return list;    
+	    }
+
+	/*private static List<String> getImgSrc(String htmlStr) {
 		String img = "";
 		Pattern p_image;
 		Matcher m_image;
 		List<String> pics = new ArrayList<String>();
-		// String regEx_img = "<img.*src=(.*?)[^>]*?>"; //Í¼Æ¬Á´½ÓµØÖ·
+		// String regEx_img = "<img.*src=(.*?)[^>]*?>"; //å›¾ç‰‡é“¾æ¥åœ°å€
 		String regEx_img = "<img.*src\\s*=\\s*(.*?)[^>]*?>";
 		p_image = Pattern.compile(regEx_img, Pattern.CASE_INSENSITIVE);
 		m_image = p_image.matcher(htmlStr);
@@ -214,12 +229,12 @@ public class HTTPClient {
 		while (m_image.find()) {
 			img = img + "," + m_image.group();
 			// Matcher m =
-			// Pattern.compile("src=\"?(.*?)(\"|>|\\s+)").matcher(img); //Æ¥Åäsrc
+			// Pattern.compile("src=\"?(.*?)(\"|>|\\s+)").matcher(img); //åŒ¹é…src
 			Matcher m = Pattern.compile("src\\s*=\\s*\"?(.*?)(\"|>|\\s+)").matcher(img);
 			while (m.find()) {
 				pics.add(m.group(1));
 			}
 		}
 		return pics;
-	}
+	}*/
 }
