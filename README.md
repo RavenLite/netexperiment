@@ -9,11 +9,10 @@ ftp.dlptest.com
 继续刷夜~~
 
 2018/1/18 1:52
-17日进展的不是很顺利
-连日的缺乏睡眠导致今天下午一直没有精神去写
 
 完成了HTTP的基本操作
 支持访问主流网站
 测试样例支持的网站是 NEU图书馆http://www.lib.neu.edu.cn/index.html
 
-继续加油！
+FTP和HTTP的client可以完美运行上面的网站
+server端完成了大部分功能，剩下的和client都差不多，就不写啦。
